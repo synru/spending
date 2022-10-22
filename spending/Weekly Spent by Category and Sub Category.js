@@ -1,4 +1,4 @@
-﻿Category,Sub Category,Weekly Spent
+﻿data=`Category,Sub Category,Weekly Spent
 Clothing,Clothes,£5.93
 Clothing,Costume,£1.36
 Entertainment,Occasion,£0.58
@@ -21,18 +21,17 @@ Food & Drink,Ready Food,£0.95
 Food & Drink,Seasoning,£6.89
 Food & Drink,Snack,£22.75
 Food & Drink,Vegetable,£7.29
-Furniture,Medium Furniture,£74.95
-Furniture,Small Furniture,£30.91
+Furniture,Furniture,£105.86
 Health,Health Consumable,£3.19
 Health,Health Device,£1.36
 Household Goods,Appliance,£98.34
 Household Goods,Kitchenware,£11.27
 Household Routine,Kitchenware Consumable,£7.33
 Household Routine,Toiletries,£2.63
-Misc,Misc1,£5.06
+Misc,Misc,£5.06
 Restaurant,Restaurant,£16.86
 School,School,£13.17
 School,Stationary,£0.94
 Tax,Tax,£36.78
 Transport,Transport,£4.20
-Utility,Utility,£0.70
+Utility,Utility,£0.70`
