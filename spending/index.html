@@ -1,7 +1,7 @@
 <head>
   <!-- Load plotly.js into the DOM -->
   <script src='https://cdn.plot.ly/plotly-2.14.0.min.js'></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 </head>
 
 <body>
@@ -9,7 +9,7 @@
     const xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onload = function () {
-      const myObj = JSON.parse(this.responseText);
+      const myObj = d3.csvParse(this.responseText);
       document.getElementById("demo").innerHTML = myObj.name;
     }
     xmlhttp.open("GET", "Weekly Spent by Category and Sub Category.csv");
