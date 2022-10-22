@@ -32,13 +32,14 @@
       labels: labels,
       values: values,
       //textinfo: "label+value+percent parent+percent entry",
-      textinfo: "label+value",
+      textinfo: "label",
       domain: { "x": [0, 1] },
       outsidetextfont: { "size": 20, "color": "#377eb8" },
       marker: { "line": { "width": 0 }   },
       pathbar: { "visible": false },
       //count: "branches+leaves",
-      branchvalues: "total"
+      branchvalues: "total",
+      hovertemplate: "%{label}: £%{value:.2f}"
     }];
     var layout = {
       annotations: [{
