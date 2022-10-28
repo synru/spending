@@ -1,38 +1,38 @@
-﻿Category,Sub Category,Weekly Spent
-Clothing,Clothes,£5.93
-Clothing,Costume,£1.36
-Entertainment,Occasion,£0.58
-Entertainment,Toy,£20.80
-Food & Drink,Alcoholic Drink,£1.82
-Food & Drink,Breakfast,£6.91
-Food & Drink,Cake,£2.07
-Food & Drink,Carbohydrates,£12.08
-Food & Drink,Dessert,£4.91
-Food & Drink,Drink,£13.21
-Food & Drink,Egg,£1.70
-Food & Drink,Fruit,£3.58
-Food & Drink,Meat,£8.37
-Food & Drink,Milk,£1.49
-Food & Drink,Packaged Food,£4.68
-Food & Drink,Prepared Food,£1.50
-Food & Drink,Preprocessed Food,£2.57
-Food & Drink,Preprocessed Meat,£2.48
-Food & Drink,Ready Food,£0.95
-Food & Drink,Seasoning,£6.89
-Food & Drink,Snack,£22.75
-Food & Drink,Vegetable,£7.29
-Furniture,Medium Furniture,£74.95
-Furniture,Small Furniture,£30.91
-Health,Health Consumable,£3.19
-Health,Health Device,£1.36
-Household Goods,Appliance,£98.34
-Household Goods,Kitchenware,£11.27
-Household Routine,Kitchenware Consumable,£7.33
-Household Routine,Toiletries,£2.63
-Misc,Misc1,£5.06
-Restaurant,Restaurant,£16.86
-School,School,£13.17
-School,Stationary,£0.94
-Tax,Tax,£36.78
-Transport,Transport,£4.20
-Utility,Utility,£0.70
+﻿Category,Sub Category,Sum of Weekly Spent
+Clothing,Clothes,£5.62
+Clothing,Costume,£3.86
+Entertainment,Occasion,£0.55
+Entertainment,Toy,£17.86
+Food & Drink,Alcoholic Drink,£1.73
+Food & Drink,Breakfast,£7.25
+Food & Drink,Cake,£1.96
+Food & Drink,Carbohydrates,£11.96
+Food & Drink,Dessert,£4.65
+Food & Drink,Drink,£12.93
+Food & Drink,Egg,£1.61
+Food & Drink,Fruit,£3.52
+Food & Drink,Meat,£7.92
+Food & Drink,Milk,£1.69
+Food & Drink,Packaged Food,£3.78
+Food & Drink,Prepared Food,£1.42
+Food & Drink,Preprocessed Meat,£2.35
+Food & Drink,Ready Food,£5.96
+Food & Drink,Seasoning,£6.53
+Food & Drink,Snack,£22.64
+Food & Drink,Vegetable,£7.51
+Furniture,Medium Furniture,£71.00
+Furniture,Small Furniture,£29.29
+Government Fee,One off Government Fee,£9.18
+Health,Health Consumable,£3.02
+Health,Health Device,£1.29
+Household Goods,Appliance,£98.69
+Household Goods,Kitchenware,£10.67
+Household Routine,Kitchenware Consumable,£6.95
+Household Routine,Toiletries,£2.28
+Misc,Misc,£4.79
+Restaurant,Restaurant,£18.25
+School,School,£12.48
+School,Stationary,£1.54
+Tax,Tax,£34.85
+Transport,Transport,£3.98
+Utility,Utility,£0.67
