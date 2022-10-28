@@ -1,57 +1,267 @@
 <head>
   <!-- Load plotly.js into the DOM -->
   <script src='https://cdn.plot.ly/plotly-2.14.0.min.js'></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <!--<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>-->
 </head>
 
 <body>
-  <script src="Weekly Spent by Category and Sub Category.js"></script>
-  <div id='demo'></div>
-  <div id='myDiv'>
-    <!-- Plotly chart will be drawn inside this DIV -->
-  </div>
-  <script>
-    const res = d3.csvParse(data);
-    delete res["columns"];
-    var subcats = res.map(item => item['Sub Category']);
-    var cats = res.map((item, index) => subcats[index] == item['Category'] ? "" : item['Category']);
-    var weeklySpent = res.map(item => parseFloat(item['Weekly Spent'].replace(/[£,]+/g, "")));
-
-    var uniqueCats = [...new Set(cats)].filter(cat => !subcats.includes(cat) && cat != "")
-
-    var labels = subcats.concat(uniqueCats)
-
-    var values = weeklySpent.concat(uniqueCats.map((cat, index) => res.filter(item => item["Category"] == cat).map(item => parseFloat(item['Weekly Spent'].replace(/[£,]+/g, ""))).reduce((partialSum, a) => partialSum + a, 0)));
-    var parents = cats.concat(new Array(uniqueCats.length).fill(""))
-
-    //var labels = ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"]
-    //var parents = ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"]
-    var data = [{
-      type: "treemap",
-      parents: parents,
-      labels: labels,
-      values: values,
-      //textinfo: "label+value+percent parent+percent entry",
-      textinfo: "label",
-      domain: { "x": [0, 1] },
-      outsidetextfont: { "size": 20, "color": "#377eb8" },
-      marker: { "line": { "width": 0 }   },
-      pathbar: { "visible": false },
-      //count: "branches+leaves",
-      branchvalues: "total",
-      hovertemplate: "%{label}: £%{value:.2f}"
-    }];
-    var layout = {
-      annotations: [{
-        showarrow: false,
-        text: "Weekly Spending",
-        x: 0.25,
-        xanchor: "center",
-        y: 1.1,
-        yanchor: "bottom"
-      }]
+  <style>
+    .grid {
+      display: flex;
+      flex-direction: row;
     }
-    console.log(data)
-    Plotly.newPlot('myDiv', data, layout)
+
+    .flex-item {
+      height: 100%;
+      width: 100%;
+      background: white;
+      flex-grow: 1;
+      margin-bottom: 10px;
+      margin-right: 10px;
+    }
+  </style>
+  <div id='demo' class="flex-item"></div>
+
+  <script>
+    /*
+       This is an example snippet - you should consider tailoring it
+       to your service.
+       */
+
+    async function fetchGraphQL(operationsDoc, operationName, variables) {
+      const result = await fetch(
+        "https://new-goblin-40.hasura.app/v1/graphql",
+        {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+            'x-hasura-admin-secret': "0nJyeGpw8BArYmEQS2z21fkXMwXHqfjlQAeWDpr38SWcDkvMBKFqvyhhSlMygNeN"
+          },
+
+
+          body: JSON.stringify({
+            query: operationsDoc,
+            variables: variables,
+            operationName: operationName
+          })
+        }
+      );
+
+      return await result.json();
+    }
+
+
+    async function retrieveData(op) {
+      const operationsDoc = `
+            query spending_by_sub_cat {
+                Spending_Sub_Category_Weekly_Spent {
+                    Category
+                    Sub_Category
+                    Weekly_Spent
+                    Avg_Importance_Index
+                    Days_Between_Purchase
+                }
+            }
+
+            query query_weekly_spent {
+              Spending_Spent_By_Week_Cat {
+                Category
+                Week_Number
+                Weekly_Spent
+              }
+            }
+
+            `;
+      const { errors, data } = await fetchGraphQL(
+        operationsDoc,
+        op,
+        {}
+      );
+
+      if (errors) {
+        // handle those errors like a pro
+        console.error(errors);
+      }
+      return data
+    }
+
+    async function startFetchTreeMapData() {
+
+
+
+      data = await retrieveData("spending_by_sub_cat")
+
+      res = data.Spending_Sub_Category_Weekly_Spent
+      //const res = d3.csvParse(data);
+      //delete res["columns"];
+      var subcats = res.map(item => item['Sub_Category']);
+      var cats = res.map((item, index) => subcats[index] == item['Category'] ? "" : item['Category']);
+      //var weeklySpent = res.map(item => parseFloat(item['Weekly_Spent'].replace(/[£,]+/g, "")));
+      var weeklySpent = res.map(item => item['Weekly_Spent']);
+
+      var uniqueCats = [...new Set(cats)].filter(cat => !subcats.includes(cat) && cat != "")
+
+      var labels = subcats.concat(uniqueCats)
+
+      var values = weeklySpent.concat(uniqueCats.map((cat, index) => res.filter(item => item["Category"] == cat).map(item => item['Weekly_Spent']).reduce((partialSum, a) => partialSum + a, 0)));
+      var parents = cats.concat(new Array(uniqueCats.length).fill(""))
+
+      //var labels = ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"]
+      //var parents = ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"]
+      var plot1 = {
+        type: "treemap",
+        parents: parents,
+        labels: labels,
+        values: values,
+        xaxis: 'x1',
+        yaxis: 'y1',
+        //textinfo: "label+value+percent parent+percent entry",
+        textinfo: "label",
+        //domain: { "x": [0, 1] },
+        outsidetextfont: { "size": 20, "color": "#377eb8" },
+        marker: { "line": { "width": 0 } },
+        pathbar: { "visible": false },
+        //count: "branches+leaves",
+        branchvalues: "total",
+        hovertemplate: "%{label}: £%{value:.2f}"
+      };
+
+      //console.log(pdata)
+      //Plotly.newPlot('demo', [plot1], layout)
+
+      var plot2 = {
+        x: res.map(item => item['Avg_Importance_Index']),
+        y: res.map(item => item['Days_Between_Purchase']),
+        xaxis: 'x2',
+        yaxis: 'y2',
+        mode: 'markers+text',
+        type: 'scatter',
+        colorscale: 'YlGnBu',
+        //name: 'Team A',
+        text: subcats,
+        //textposition: 'top center',
+        //textfont: {
+        //  family: 'Raleway, sans-serif'
+        //},
+        marker: { size: weeklySpent, color: weeklySpent },
+        showlegend: false
+      };
+
+      var pdata = [plot1, plot2];
+
+
+
+      data = await retrieveData("query_weekly_spent")
+
+
+      res = data.Spending_Spent_By_Week_Cat
+
+      var helper = {};
+      var result = res.reduce(function (r, o) {
+        var key = o.Category + '-' + o.Week_Number;
+
+        if (!helper[key]) {
+          helper[key] = Object.assign({}, o); // create a copy of o
+          r.push(helper[key]);
+        } else {
+          helper[key].Weekly_Spent += o.Weekly_Spent;
+        }
+
+        return r;
+      }, []);
+
+      result.sort((a, b) => (a.Week_Number > b.Week_Number) ? 1 : ((b.Week_Number > a.Week_Number) ? -1 : 0))
+
+      var cats = result.map(item => item['Category']);
+      var weekNums = result.map(item => item['Week_Number']);
+      var weeklySpent = result.map(item => item['Weekly_Spent']);
+
+      var distCats = Array.from(new Set(cats));
+
+      for (cat of distCats) {
+        let indices = cats.reduce(function (a, e, i) {
+          if (e === cat)
+            a.push(i);
+          return a;
+        }, []);
+
+        let x1 = weekNums.filter((value, index) => {
+          return indices.includes(index)
+        });
+
+        let y1 = weeklySpent.filter((value, index) => {
+          return indices.includes(index)
+        });
+
+        let t = {
+          x: x1,
+          y: y1,
+          xaxis: 'x3',
+          yaxis: 'y3',
+          name: cat,
+          type: 'bar'
+        };
+
+        pdata.push(t)
+      }
+
+      var layout = {
+        barmode: 'stack',
+        autosize: true,
+        grid: { rows: 2, columns: 2, pattern: 'independent' },
+        annotations: [{
+          text: "Category Contribution",
+          showarrow: false,
+          align: 'center',
+          x: 0.15,
+          y: 1,
+          xref: 'paper',
+          yref: 'paper',
+        },
+        {
+          text: "Weekly Spending Trend",
+          showarrow: false,
+          align: 'center',
+          x: 0.15,
+          y: 0.5,
+          xref: 'paper',
+          yref: 'paper',
+        }
+        ],
+        xaxis2: {
+          title: {
+            text: 'Importance Index',
+          },
+        },
+        yaxis2: {
+          title: {
+            text: 'Weekly Spending (£)',
+          }
+        },
+        xaxis3: {
+          title: { text: "Week" },
+        },
+        yaxis3: {
+          title: { text: "Spending" },
+          tickprefix: '£'
+        },
+        legend: {
+          x: 0.55,
+          xanchor: 'right',
+          y: 0
+        },
+        title3: {
+          text: 'Plot Title',
+        }
+      };
+      Plotly.newPlot('demo', pdata, layout, {
+        'displayModeBar': false,
+        responsive: true
+      });
+    }
+
+    startFetchTreeMapData();
+
+
   </script>
 </body>
