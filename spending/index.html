@@ -15,7 +15,7 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
-  <script src="https://synru.github.io/spending/graph_ql.js"/>
+  <script type="text/javascript" src="https://synru.github.io/spending/graph_ql.js"></script>
 </head>
 
 <body>
@@ -34,140 +34,145 @@
       margin-right: 10px;
     }
   </style>
-<!--  <div class="container" data-num="0">-->
-    <div class="control-category">
-      Category: <select id="select-cats" multiple="multiple">
-      </select>
-    </div>
-    <div id='plotdiv' class="flex-item"></div>
+  <!--  <div class="container" data-num="0">-->
+  <div class="control-category">
+    Category: <select id="select-cats" multiple="multiple">
+    </select>
+  </div>
+  <div id='plotdiv' class="flex-item"></div>
   <!--</div>-->
 
-  <script></script>
+  <script>
 
-    async function startFetchTreeMapData() {
-
-
-      var layout = {
-        colorway: [],
-        barmode: 'stack',
-        autosize: true,
-        grid: { rows: 3, columns: 3, pattern: 'independent' },
-        annotations: [{
-          text: "Category Contribution",
-          showarrow: false,
-          align: 'center',
-          x: 0.15,
-          y: 0.8,
-          xref: 'paper',
-          yref: 'paper',
+    const layout = {
+      colorway: [],
+      barmode: 'stack',
+      autosize: true,
+      grid: { rows: 3, columns: 3, pattern: 'independent' },
+      annotations: [{
+        text: "Category Contribution",
+        showarrow: false,
+        align: 'center',
+        x: 0.15,
+        y: 0.8,
+        xref: 'paper',
+        yref: 'paper',
+      },
+      {
+        text: "Weekly Spending Trend",
+        showarrow: false,
+        align: 'center',
+        x: 0.15,
+        y: 0.5,
+        xref: 'paper',
+        yref: 'paper',
+      }
+      ],
+      /*
+      xaxis: {
+        domain: [0, 1],
+        anchor: 'y1'
+      },
+      yaxis: {
+        domain: [0.85, 1],
+        anchor: 'x1'
+      },
+      */
+      xaxis: {
+        domain: [0.55, 1],
+        anchor: 'y1',
+        title: {
+          text: 'Importance Index',
         },
-        {
-          text: "Weekly Spending Trend",
-          showarrow: false,
-          align: 'center',
-          x: 0.15,
-          y: 0.5,
-          xref: 'paper',
-          yref: 'paper',
+      },
+      yaxis: {
+        domain: [0.45, 0.8],
+        anchor: 'x1',
+        title: {
+          text: 'Weekly Spending (£)',
         }
-        ],
-        /*
-        xaxis: {
-          domain: [0, 1],
-          anchor: 'y1'
-        },
-        yaxis: {
-          domain: [0.85, 1],
-          anchor: 'x1'
-        },
-        */
-        xaxis: {
-          domain: [0.55, 1],
-          anchor: 'y1',
-          title: {
-            text: 'Importance Index',
-          },
-        },
-        yaxis: {
-          domain: [0.45, 0.8],
-          anchor: 'x1',
-          title: {
-            text: 'Weekly Spending (£)',
-          }
-        },
-        xaxis3: {
-          domain: [0, 0.4],
-          anchor: 'y3',
-          title: { text: "Week" },
-        },
-        yaxis3: {
-          domain: [0, 0.4],
-          anchor: 'x3',
-          title: { text: "Spending" },
-          tickprefix: '£'
-        },
-        xaxis4: {
-          tickmode: "array",
-          domain: [0.55, 1],
-          anchor: 'y4'
-        },
-        yaxis4: {
-          title: 'Weekly Spent',
-          domain: [0, 0.4],
-          anchor: 'x4'
-        },
+      },
+      xaxis3: {
+        domain: [0, 0.4],
+        anchor: 'y3',
+        title: { text: "Week" },
+      },
+      yaxis3: {
+        domain: [0, 0.4],
+        anchor: 'x3',
+        title: { text: "Spending" },
+        tickprefix: '£'
+      },
+      xaxis4: {
+        tickmode: "array",
+        domain: [0.55, 1],
+        anchor: 'y4'
+      },
+      yaxis4: {
+        title: 'Weekly Spent',
+        domain: [0, 0.4],
+        anchor: 'x4'
+      },
 
-        yaxis5: {
-          title: 'Accumulated Weekly Spent',
-          overlaying: 'y4',
-          side: 'right'
-        },
+      yaxis5: {
+        title: 'Accumulated Weekly Spent',
+        overlaying: 'y4',
+        side: 'right'
+      },
 
-        xaxis6: {
-          title: "Test",
-          domain: [0.0, 1]
-        },
-        yaxis6: {
-          title: "Test",
-          domain: [0.85, 1]
-        },
+      xaxis6: {
+        title: "Test",
+        domain: [0.0, 1]
+      },
+      yaxis6: {
+        title: "Test",
+        domain: [0.85, 1]
+      },
 
-        legend: {
-          //x: 0.55,
-          //xanchor: 'top'
-          y: 0.8
-        },
-        title3: {
-          text: 'Plot Title',
-        }
+      legend: {
+        //x: 0.55,
+        //xanchor: 'top'
+        y: 0.8
+      },
+      title3: {
+        text: 'Plot Title',
+      }
 
-      };
+    };
+    const cmap = new Map();
+    let _data1;
+    let _data2;
+    let _data3;
+    let _data4;
+    let _data5;
 
-      data = await retrieveData("spending_by_sub_cat")
+    async function initialize() {
 
-      res = data.Spending_Sub_Category_Weekly_Spent
-      //const res = d3.csvParse(data);
-      //delete res["columns"];
-      var subcats = res.map(item => item['Sub_Category']);
-      var cats = res.map((item, index) => subcats[index] == item['Category'] ? "" : item['Category']);
-      //var weeklySpent = res.map(item => parseFloat(item['Weekly_Spent'].replace(/[£,]+/g, "")));
-      var weeklySpent = res.map(item => item['Weekly_Spent']);
+      let raw = await retrieveData("spending_by_sub_cat")
 
-      var uniqueCats = [...new Set(cats)].filter(cat => !subcats.includes(cat) && cat != "")
+      _data1 = raw.Spending_Sub_Category_Weekly_Spent
+      let uCats = [...new Set(_data1.map(item => item['Category']))]
 
       //var catSelectData = []
-      var catSelector = $("#select-cats")
+      let catSelector = $("#select-cats")
 
-      for (cat of uniqueCats) {
+      for (cat of uCats) {
         //catSelectData.push(res.filter(entry => entry.Category == cat).map(entry => entry.Sub_Category))
         var optGroup = $("<optgroup/>");
         optGroup.attr("label", cat);
-        for (o of res.filter(entry => entry.Category == cat)) {
+        for (o of _data1.filter(entry => entry.Category == cat)) {
           var opt = $("<option/>")
           opt.text(o.Sub_Category)
           optGroup.append(opt)
         }
         catSelector.append(optGroup)
+      }
+      
+
+      let idx = 0;
+
+      for (cat of uCats) {
+        cmap.set(cat, d3.schemeCategory20[idx++])
       }
 
 
@@ -177,30 +182,57 @@
           enableCollapsibleOptGroups: true,
           includeSelectAllOption: true,
           onDropdownHidden: function (e) {
-            console.log($("#select-cats").val())
+            updateSelection()
             //alert('Changed option ' + $(option).val() + '.');
           }
         });
       });
 
 
+      raw = await retrieveData("query_weekly_spent")
+
+      _data2 = raw.Spending_Spent_By_Week_Cat
+
+      raw = await retrieveData("query_item_spent")
+
+      _data3 = raw.Spending_Spent_By_Item
+      _data3.sort((a, b) => (a.Importance_Index > b.Importance_Index) ? 1 : ((b.Importance_Index > a.Importance_Index) ? -1 : 0))
+
+      raw = await retrieveData("query_summary")
+
+      _data4 = raw.Spending_Purchase_aggregate
+      _data5 = raw.Spending_Recurrent_Weekly_Spent_aggregate
+
+      //**********************************init done
+
+    }
+
+    function updateSelection() {
+      console.log($("#select-cats").val())
+      let selectedSubCats = $("#select-cats").val()
+
+
+      let data1 = selectedSubCats ? _data1.filter(v => selectedSubCats.includes(v.Sub_Category)) : _data1
+      let data2 = selectedSubCats ? _data2.filter(v => selectedSubCats.includes(v.Sub_Category)) : _data2
+      let data3 = selectedSubCats ? _data3.filter(v => selectedSubCats.includes(v.Sub_Category)) : _data3
+      let data4 = _data4
+      let data5 = _data5
+
+      let subcats = data1.map(item => item['Sub_Category']);
+      let cates = data1.map((item, index) => subcats[index] == item['Category'] ? "" : item['Category']);
+      let uniqueCats = [...new Set(cates)].filter(cat => !subcats.includes(cat) && cat != "")
+
+      let weeklySpent = data1.map(item => item['Weekly_Spent']);
+
+
       //var innerContainer = document.querySelector('[data-num="0"'),
       //  plotEl = innerContainer.querySelector('.plot'),
       //  catSelector = innerContainer.querySelector('.categorydata');
 
-      const cmap = new Map();
+      let labels = subcats.concat(uniqueCats)
 
-      var idx = 0;
-
-      for (cat of [...new Set(res.map(item => item['Category']))]) {
-        cmap.set(cat, d3.schemeCategory20[idx++])
-      }
-
-
-      var labels = subcats.concat(uniqueCats)
-
-      var values = weeklySpent.concat(uniqueCats.map((cat, index) => res.filter(item => item["Category"] == cat).map(item => item['Weekly_Spent']).reduce((partialSum, a) => partialSum + a, 0)));
-      var parents = cats.concat(new Array(uniqueCats.length).fill(""))
+      let values = weeklySpent.concat(uniqueCats.map((cat, index) => data1.filter(item => item["Category"] == cat).map(item => item['Weekly_Spent']).reduce((partialSum, a) => partialSum + a, 0)));
+      let parents = cates.concat(new Array(uniqueCats.length).fill(""))
 
       layout.treemapcolorway = parents.reduce(function (a, e, i) {
         if (e === '')
@@ -210,7 +242,7 @@
 
       //var labels = ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"]
       //var parents = ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"]
-      var plot1 = {
+      let plot1 = {
         type: "treemap",
         parents: parents,
         labels: labels,
@@ -226,15 +258,16 @@
         hovertemplate: "%{label}: £%{value:.2f}"
       };
 
-      var pdata = [plot1]
+      let pdata = [plot1]
       layout.colorway.push('#aec7e8')
 
       //console.log(pdata)
       //Plotly.newPlot('demo', [plot1], layout)
 
       for (cat of uniqueCats) {
-        let res1 = res.filter(entry => entry.Category == cat)
-        var plot2 = {
+
+        let res1 = data2.filter(entry => entry.Category == cat)
+        let plot2 = {
           x: res1.map(item => item['Avg_Importance_Index']),
           y: res1.map(item => item['Days_Between_Purchase']),
           xaxis: 'x1',
@@ -256,13 +289,8 @@
 
 
 
-      data = await retrieveData("query_weekly_spent")
-
-
-      res = data.Spending_Spent_By_Week_Cat
-
-      var helper = {};
-      var result = res.reduce(function (r, o) {
+      let helper = {};
+      let result = data2.reduce(function (r, o) {
         var key = o.Category + '-' + o.Week_Number;
 
         if (!helper[key]) {
@@ -277,14 +305,14 @@
 
       result.sort((a, b) => (a.Week_Number > b.Week_Number) ? 1 : ((b.Week_Number > a.Week_Number) ? -1 : 0))
 
-      var cats = result.map(item => item['Category']);
-      var weekNums = result.map(item => item['Week_Number']);
-      var weeklySpent = result.map(item => item['Weekly_Spent']);
+      cates = result.map(item => item['Category']);
+      let weekNums = result.map(item => item['Week_Number']);
+      weeklySpent = result.map(item => item['Weekly_Spent']);
 
-      var distCats = cats.filter((v, i, a) => a.indexOf(v) === i)//Array.from(new Set(cats));
+      let distCats = cates.filter((v, i, a) => a.indexOf(v) === i)//Array.from(new Set(cats));
 
       for (cat of distCats) {
-        let indices = cats.reduce(function (a, e, i) {
+        let indices = cates.reduce(function (a, e, i) {
           if (e === cat)
             a.push(i);
           return a;
@@ -315,15 +343,11 @@
 
       //layout.colorway = distCats.map((cat) =>(cmap.get(cat)))
 
-      data = await retrieveData("query_item_spent")
 
-      res = data.Spending_Spent_By_Item
-      res.sort((a, b) => (a.Importance_Index > b.Importance_Index) ? 1 : ((b.Importance_Index > a.Importance_Index) ? -1 : 0))
-
-      var helper = {};
+      helper = {};
       var prevO = null
 
-      result = res.map((obj, index, self) => {
+      result = data3.map((obj, index, self) => {
         if (index == 0) {
           prevO = { "Category": obj.Category, "Item": obj.Item, "Importance_Index": obj.Importance_Index, "Accumulated_Spent": obj.Weekly_Spent, "Weekly_Spent": obj.Weekly_Spent }
           return prevO;
@@ -333,11 +357,11 @@
       });
 
       for (cat of distCats) {
-        var res1 = result.filter(v => (v.Category == cat))
-        var items = res1.map(item => item['Item']);
-        var importanceIndex = res1.map(item => item['Importance_Index']);
-        //var accumulatedSpent = res1.map(item => item['Accumulated_Spent']);
-        var weeklySpent = res1.map(item => item['Weekly_Spent']);
+        let res1 = result.filter(v => (v.Category == cat))
+        let items = res1.map(item => item['Item']);
+        let importanceIndex = res1.map(item => item['Importance_Index']);
+
+        let weeklySpent = res1.map(item => item['Weekly_Spent']);
 
         let t = {
           x: importanceIndex,
@@ -354,7 +378,7 @@
       }
 
 
-      var trace2 = {
+      let trace2 = {
         x: result.map(item => item['Importance_Index']),
         y: result.map(item => item['Accumulated_Spent']),
         mode: 'lines',
@@ -371,13 +395,10 @@
 
 
 
-      data = await retrieveData("query_summary")
+      let ttlSpent = data4["aggregate"]["sum"]["Amount"]
+      let numDays = (Date.parse(data4["aggregate"]["max"]["Date"]) - Date.parse(data4["aggregate"]["min"]["Date"])) / 1000 / 24 / 60 / 60 + 1
 
-      res = data.Spending_Purchase_aggregate
-      let ttlSpent = res["aggregate"]["sum"]["Amount"]
-      let numDays = (Date.parse(res["aggregate"]["max"]["Date"]) - Date.parse(res["aggregate"]["min"]["Date"])) / 1000 / 24 / 60 / 60 + 1
-
-      let ttlRecurrent = data.Spending_Recurrent_Weekly_Spent_aggregate.aggregate.sum.Weekly_Spent
+      let ttlRecurrent = data5.aggregate.sum.Weekly_Spent
 
       let ttlWeeklySpent = ttlSpent / numDays * 7
       let ttlRecurrentWeeklySpent = ttlRecurrent
@@ -387,7 +408,7 @@
         currency: 'GBP', maximumFractionDigits: 0
       });
 
-      var data = {
+      let data = {
         type: 'table',
         //xaxis: "x",
         //yaxis: "y",
@@ -415,8 +436,9 @@
       });
     }
 
-    startFetchTreeMapData();
-
+    initialize().then(
+      function(value) {updateSelection();}
+    );
 
   </script>
 </body>
