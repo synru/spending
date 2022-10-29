@@ -32,16 +32,22 @@
       flex-grow: 1;
       margin-bottom: 10px;
       margin-right: 10px;
+      z-index: 9;
     }
+    .cat-select {
+      position: absolute;
+      top: 10%;
+      right: 30%;
+      z-index: 8;
+    }    
   </style>
-  <!--  <div class="container" data-num="0">-->
-  <div class="control-category">
-    Category: <select id="select-cats" multiple="multiple">
-    </select>
+  <div id="container">
+    <div class="cat-select">
+      Category: <select id="select-cats" multiple="multiple">
+      </select>
+    </div>
+    <div id='plotdiv' class="flex-item"></div>
   </div>
-  <div id='plotdiv' class="flex-item"></div>
-  <!--</div>-->
-
   <script>
 
     const layout = {
@@ -89,7 +95,7 @@
         domain: [0.45, 0.8],
         anchor: 'x1',
         title: {
-          text: 'Weekly Spending (£)',
+          text: 'Days between Spent',
         }
       },
       xaxis3: {
@@ -132,7 +138,9 @@
       legend: {
         //x: 0.55,
         //xanchor: 'top'
-        y: 0.8
+        y: 0.88,
+        x: 0,
+        "orientation": "h"
       },
       title3: {
         text: 'Plot Title',
@@ -186,12 +194,14 @@
             //alert('Changed option ' + $(option).val() + '.');
           }
         });
+        catSelector.multiselect('selectAll', true);
       });
 
 
       raw = await retrieveData("query_weekly_spent")
 
       _data2 = raw.Spending_Spent_By_Week_Cat
+      _data2.sort((a, b) => (a.Week_Number > b.Week_Number) ? 1 : ((b.Week_Number > a.Week_Number) ? -1 : 0))
 
       raw = await retrieveData("query_item_spent")
 
@@ -223,11 +233,6 @@
       let uniqueCats = [...new Set(cates)].filter(cat => !subcats.includes(cat) && cat != "")
 
       let weeklySpent = data1.map(item => item['Weekly_Spent']);
-
-
-      //var innerContainer = document.querySelector('[data-num="0"'),
-      //  plotEl = innerContainer.querySelector('.plot'),
-      //  catSelector = innerContainer.querySelector('.categorydata');
 
       let labels = subcats.concat(uniqueCats)
 
@@ -266,7 +271,7 @@
 
       for (cat of uniqueCats) {
 
-        let res1 = data2.filter(entry => entry.Category == cat)
+        let res1 = data1.filter(entry => entry.Category == cat)
         let plot2 = {
           x: res1.map(item => item['Avg_Importance_Index']),
           y: res1.map(item => item['Days_Between_Purchase']),
@@ -303,7 +308,7 @@
         return r;
       }, []);
 
-      result.sort((a, b) => (a.Week_Number > b.Week_Number) ? 1 : ((b.Week_Number > a.Week_Number) ? -1 : 0))
+      
 
       cates = result.map(item => item['Category']);
       let weekNums = result.map(item => item['Week_Number']);
