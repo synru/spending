@@ -41,6 +41,7 @@ async function retrieveData(op) {
             query query_weekly_spent {
               Spending_Spent_By_Week_Cat {
                 Category
+                Sub_Category
                 Week_Number
                 Weekly_Spent
               }
