@@ -2,14 +2,20 @@
   <!-- Load plotly.js into the DOM -->
   <script src='https://cdn.plot.ly/plotly-2.14.0.min.js'></script>
   <!--<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>-->
-  <script src="https://d3js.org/d3.v4.min.js">
-  </script>
-  <script src="https://d3js.org/d3-color.v1.min.js">
-  </script>
-  <script src="https://d3js.org/d3-interpolate.v1.min.js">
-  </script>
-  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js">
-  </script>
+  <script src="https://d3js.org/d3.v4.min.js">  </script>
+  <script src="https://d3js.org/d3-color.v1.min.js">  </script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js">  </script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js">  </script>
+  <!-- for multiple select dropdown-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
+  <script src=""
 </head>
 
 <body>
@@ -20,7 +26,7 @@
     }
 
     .flex-item {
-      height: 100%;
+      height: 90%;
       width: 100%;
       background: white;
       flex-grow: 1;
@@ -28,101 +34,15 @@
       margin-right: 10px;
     }
   </style>
-  <div id='demo' class="flex-item"></div>
+<!--  <div class="container" data-num="0">-->
+    <div class="control-category">
+      Category: <select id="select-cats" multiple="multiple">
+      </select>
+    </div>
+    <div id='plotdiv' class="flex-item"></div>
+  <!--</div>-->
 
-  <script>
-    /*
-       This is an example snippet - you should consider tailoring it
-       to your service.
-       */
-
-    async function fetchGraphQL(operationsDoc, operationName, variables) {
-      const result = await fetch(
-        "https://new-goblin-40.hasura.app/v1/graphql",
-        {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-            'x-hasura-admin-secret': "0nJyeGpw8BArYmEQS2z21fkXMwXHqfjlQAeWDpr38SWcDkvMBKFqvyhhSlMygNeN"
-          },
-
-
-          body: JSON.stringify({
-            query: operationsDoc,
-            variables: variables,
-            operationName: operationName
-          })
-        }
-      );
-
-      return await result.json();
-    }
-
-
-    async function retrieveData(op) {
-      const operationsDoc = `
-            query spending_by_sub_cat {
-                Spending_Sub_Category_Weekly_Spent {
-                    Category
-                    Sub_Category
-                    Weekly_Spent
-                    Avg_Importance_Index
-                    Days_Between_Purchase
-                }
-            }
-
-            query query_weekly_spent {
-              Spending_Spent_By_Week_Cat {
-                Category
-                Week_Number
-                Weekly_Spent
-              }
-            }
-            query query_item_spent {
-              Spending_Spent_By_Item {
-                Category
-                Sub_Category
-                Item
-                Importance_Index
-                Weekly_Spent
-              }
-            }
-            query query_summary {
-              Spending_Purchase_aggregate {
-                aggregate {
-                  sum {
-                    Amount
-                  }
-                  max {
-                    Date
-                  }
-                  min {
-                    Date
-                  }
-                }
-              }
-              Spending_Recurrent_Weekly_Spent_aggregate {
-                aggregate {
-                  sum {
-                    Weekly_Spent
-                  }
-                }
-              }
-            }
-
-            `;
-      const { errors, data } = await fetchGraphQL(
-        operationsDoc,
-        op,
-        {}
-      );
-
-      if (errors) {
-        // handle those errors like a pro
-        console.error(errors);
-      }
-      return data
-    }
+  <script></script>
 
     async function startFetchTreeMapData() {
 
@@ -234,6 +154,39 @@
       var weeklySpent = res.map(item => item['Weekly_Spent']);
 
       var uniqueCats = [...new Set(cats)].filter(cat => !subcats.includes(cat) && cat != "")
+
+      //var catSelectData = []
+      var catSelector = $("#select-cats")
+
+      for (cat of uniqueCats) {
+        //catSelectData.push(res.filter(entry => entry.Category == cat).map(entry => entry.Sub_Category))
+        var optGroup = $("<optgroup/>");
+        optGroup.attr("label", cat);
+        for (o of res.filter(entry => entry.Category == cat)) {
+          var opt = $("<option/>")
+          opt.text(o.Sub_Category)
+          optGroup.append(opt)
+        }
+        catSelector.append(optGroup)
+      }
+
+
+      $(document).ready(function () {
+        catSelector.multiselect({
+          enableClickableOptGroups: true,
+          enableCollapsibleOptGroups: true,
+          includeSelectAllOption: true,
+          onDropdownHidden: function (e) {
+            console.log($("#select-cats").val())
+            //alert('Changed option ' + $(option).val() + '.');
+          }
+        });
+      });
+
+
+      //var innerContainer = document.querySelector('[data-num="0"'),
+      //  plotEl = innerContainer.querySelector('.plot'),
+      //  catSelector = innerContainer.querySelector('.categorydata');
 
       const cmap = new Map();
 
@@ -422,16 +375,16 @@
 
       res = data.Spending_Purchase_aggregate
       let ttlSpent = res["aggregate"]["sum"]["Amount"]
-      let numDays = (Date.parse(res["aggregate"]["max"]["Date"]) - Date.parse(res["aggregate"]["min"]["Date"]))/1000/24/60/60 + 1
+      let numDays = (Date.parse(res["aggregate"]["max"]["Date"]) - Date.parse(res["aggregate"]["min"]["Date"])) / 1000 / 24 / 60 / 60 + 1
 
       let ttlRecurrent = data.Spending_Recurrent_Weekly_Spent_aggregate.aggregate.sum.Weekly_Spent
 
       let ttlWeeklySpent = ttlSpent / numDays * 7
       let ttlRecurrentWeeklySpent = ttlRecurrent
-      let ttlNonrecurrent = ttlSpent - ttlRecurrent * numDays /7
+      let ttlNonrecurrent = ttlSpent - ttlRecurrent * numDays / 7
       const gbpFormatter = new Intl.NumberFormat('en-GB', {
         style: 'currency',
-        currency: 'GBP',maximumFractionDigits: 0
+        currency: 'GBP', maximumFractionDigits: 0
       });
 
       var data = {
@@ -456,7 +409,7 @@
 
       pdata.push(data);
 
-      Plotly.newPlot('demo', pdata, layout, {
+      Plotly.newPlot('plotdiv', pdata, layout, {
         'displayModeBar': false,
         responsive: true
       });
