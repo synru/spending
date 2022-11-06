@@ -178,7 +178,7 @@ browser.get(url)
     </div>
     <div>
         <h2>8. Export to CSV</h2>
-        <p>Finally export to CSV for later visualization code. Then you can find the whole scrap source code here : <a href="https://github.com/synru/AutoTrader-Visualization/blob/main/scrap.py">scrap.py</a></p>
+        <p>Finally export to CSV for later visualization code.</p>
         <div class="border rounded-3 p-2 mb-2">
             <pre>
                 <code class="language-python">filename = 'auto trader.csv'
@@ -237,7 +237,7 @@ plt.show()
         </div>
     </div>
     <div>
-        <h2>10. Create annotation on hover</h2>
+        <h2>11. Create annotation on hover</h2>
         <p>It will make sense if can display annotation for detail when hover the point
         </p>
         <div class="border rounded-3 p-2 mb-2">
@@ -252,13 +252,18 @@ def on_add(sel):
         </div>
     </div>  
     <div>
-        <h2>11. Output and insight</h2>
+        <h2>12. Output and insight</h2>
         <p>Scatter chart plotted below and the most great price car suppose to be lower price with lower mileage and with recent year. Therefore, the point close to the origin will be a better choice. The highlighted point is the car that will be a good choice (13K pounds, 13K miles with year 2014).</p>
         <img src="Figure 1.png">
         <p>If year is the concern, then can consider with another choice with better year at 2018 with the point below</p>
         <img src="Figure 2.png">
-        You may find the Jupyter notebook for this code over here: <a href="https://github.com/synru/AutoTrader-Visualization/blob/main/scatter.ipynb">Notebook</a>
-    </div> 
+        
+    </div>
+    <div>
+        <h2>Source Code</h2>
+        <p>You may find the Jupyter notebook for this code over here: <a href="https://github.com/synru/AutoTrader-Visualization/blob/main/scatter.ipynb">Notebook</a></p>
+        <p>Scrapping source code is over here: <a href="https://github.com/synru/AutoTrader-Visualization/blob/main/scrap.py">scrap.py</a></p>
+    </div>
     <script>hljs.highlightAll();</script>
     <script>
         var diagram = flowchart.parse($("div.flow").text());
