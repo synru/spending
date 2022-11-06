@@ -1,0 +1,269 @@
+<html>
+
+<head>
+    <!--<link rel="stylesheet" href="https://highlightjs.org/static/demo/style.css">-->
+    <link href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css" rel="stylesheet" />
+    <link rel="stylesheet" title="Default" href="https://highlightjs.org/static/demo/styles/default.css">
+    <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/base16/3024.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!--<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>-->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.8.0/flowchart.min.js"></script>-->
+    <script src="https://flowchart.js.org/flowchart-latest.js"></script>
+    <style>
+        body {
+            width: 50%;
+            margin: auto;
+            background: white;
+            padding: 10px;
+        }
+
+        p {
+            text-align: justify;
+        }
+    </style>
+</head>
+
+<body data-color-mode="dark" data-dark-theme="dark" class="p-3">
+
+    <script src="https://highlightjs.org/static/highlight.min.js"></script>
+    <h1>Visualization of Auto Trader Data with Python</h1>
+    <h2>1. Why I have this?</h2>
+    <p>If you are hunting used car in UK, the first place to look at is Auto Trader. It has bunch of cars from all
+        nationwide dealers including private trade as well. However, the web site does not provide comparison among
+        cars or sort of visualization of attributes for comparison purpose. In order to compare car, I have an
+        effort here extract car data and provide visualization.
+
+    </p>
+    <h2>2. Examining Pattern of URL</h2>
+    <p>For me, I am seek for best price with lowest mileage. In this example, I am dedicated for Toyota Yaris
+        Hybrid which is the most common small hybrid in UK. The URL for seeking such car will look like this</p>
+    <div>
+        <pre>
+            <code class="language">https://www.autotrader.co.uk/car-search?sort=mileage&postcode=nw104hn&radius=15&make=Toyota&model=Yaris&only-delivery-option=on&fuel-type=Petrol%20Hybrid&ma=Y
+            </code>
+        </pre>
+    </div>
+    <p>Note that you also need to provide postcode and radius of search in the above URL as well and then have the
+        following GET parameters</p>
+    <div class="markdown-body">
+        <ul>
+            <li>Model: Toyota Yaris</li>
+            <li>Fuel Type: Petrol Hybrid</li>
+            <li>Require delivery service</li>
+            <li>Automatic Transmission</li>
+        </ul>
+    </div>
+    <h2>3. Drafting the process flow</h2>
+    <p>Here is the flow of logic from extraction to data till visualize the data</p>
+    <div class="color-bg-subtle rounded-3 p-2 mb-2">
+        <!--<div id="diagram"></div>    -->
+        <div class="flow" id="diagram">st=>start: Start
+            e=>end
+            op1=>operation: Open Chrome Browser
+            op2=>operation: Submit Request to Autotrader
+            op3=>operation: scrap car element entries
+            sub1=>subroutine: My Subroutine
+            cond=>condition: Has Next Page?
+            io=>inputoutput: Save to CSV
+            visual=>operation: scatter plot
+
+            st->op1(right)->op2->op3
+            op3(right)->cond
+            cond(no, bottom)->io->visual->e
+            cond(yes, right)->op2</div>
+    </div>
+    <div>
+        <h2>4. Open Chrome browser</h2>
+        <div>As Autotrader detect and prevent crawling robot, and therefore the workaround is to open a real browser
+            with Selenium driver. You may uncomment the headless argument below to hide the browser</div>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+            <code class="language-python">from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from requests.models import PreparedRequest
+
+url = "https://www.autotrader.co.uk/car-search?sort=mileage&postcode=nw104hn"
+params = {'radius':'30','make':'Toyota', 'model' : 'Aygo', 'ma' : 'Y', 'only-delivery-option' :'on'}
+req = PreparedRequest()
+req.prepare_url(url, params)
+url =req.url
+
+options = Options()
+#options.add_argument('--headless') #for debugging purpose and not hiding the browser
+options.add_argument('--disable-gpu')
+options.add_argument("--log-level=3")
+
+browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+browser.get(url)
+            </code>
+        </pre>
+        </div>
+    </div>
+    <div>
+        <h2>5. Wait Until Page Loaded</h2>
+        <p>I am not having a good solution how to wait until the whole page completely loaded. Some efforts like
+            checking document ready state or using selenium driver api to wait until specific element didn't work.
+            Finally I decided to work around by waiting for 5 seconds</p>
+        <div>
+            <pre><code>def waitBrowserReady():
+            timeout = 5
+            time.sleep(timeout)</code></pre>
+        </div>
+    </div>
+    <div>
+        <h2>6. Parse by Beautiful Soup</h2>
+        <p>Parse the HTML content as Beautiful Soup. Then extract each car content into array. The information extracted
+            include price, mileage, PS, Registration Year</p>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+                <code class="language-python">def getCarList():
+    content = browser.page_source
+    soup = BeautifulSoup(content, 'html5lib')
+
+    cars=[] # a list to store quotes
+
+    table = soup.find('div', attrs = {'class':'search-page__results'})
+    regex = re.compile("20[0-2][0-9] \([0-9][0-9] reg\)")
+
+    for row in table.findAll('div',	attrs = {'class':'product-card-content'}):
+                            
+        price = row.find('div', attrs={'class':'product-card-pricing__price'}).span.text
+        car={}
+        car['price'] = int(price.removeprefix("£").replace(',', ''))
+        ul = row.find("ul", attrs={'class': 'listing-key-specs'})
+        if ul is None:
+            continue
+
+        specs = ul.findAll("li")
+
+        for spec in specs:
+            specText = spec.text
+            if "miles" in specText:
+                miles = int(specText.removesuffix(" miles").replace(',', ''))
+                car["miles"] = miles
+                continue
+            elif "PS" in specText:
+                ps = int(specText.removesuffix("PS").replace(',', ''))
+                car["PS"] = ps
+                continue
+            
+            if regex.match(specText) is not None:
+                car["Reg"] = specText
+
+
+        cars.append(car)
+
+    return cars
+                </code>
+            </pre>
+        </div>
+    </div>
+    <div>
+        <h2>7. Navigate Page</h2>
+        <p>The pagination is checking the existence of link ">"</p>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+                <code class="language-python">nextPageLink = soup.find('a', attrs={'class': "pagination--right__active"})
+                </code>
+            </pre>
+        </div>
+    </div>
+    <div>
+        <h2>8. Export to CSV</h2>
+        <p></p>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+                <code class="language-python">filename = 'auto trader.csv'
+with open(filename, 'w', newline='') as f:
+    w = csv.DictWriter(f,['price', 'miles', 'Reg' , 'PS'])
+    w.writeheader()
+    for car in cars:
+        w.writerow(car)
+                </code>
+            </pre>
+        </div>
+    </div>
+    <div>
+        <h2>9. Import CSV and create arrays</h2>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+                <code class="language-python">import matplotlib.pyplot as plt
+import numpy as np; np.random.seed(1)
+import pandas as pd
+df = pd.read_csv('auto trader.csv')
+
+prices = df['price']
+miles = df['miles']
+reg = df['Reg']
+ps = df['PS']
+year = [math.nan if not(isinstance(x, str)) else int(x[0:4]) for x in reg]
+cs = np.array(year)
+
+                </code>
+            </pre>
+        </div>
+    </div>
+    <div>
+        <h2>10. Create scatter</h2>
+        <p>Plot scatter by price vs mileage and color with year of registration</p>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+                <code class="language-python">import matplotlib.pyplot as plt
+fig,ax = plt.subplots()
+sc = plt.scatter(prices,miles, c=cs, cmap='viridis')
+plt.xticks(np.arange(0, max(prices)+1, 2000))
+plt.xlabel("Price")
+plt.yticks(np.arange(0, max(miles)+1, 1000))
+plt.ylabel("Miles")
+plt.colorbar()
+ax.xaxis.set_major_locator(plt.MaxNLocator(5))
+ax.xaxis.set_major_formatter('£{x:,.0f}')
+ax.yaxis.set_major_locator(plt.MaxNLocator(5))
+ax.yaxis.set_major_formatter('{x:,.0f}')
+ax.grid(True)
+
+plt.show()
+
+                </code>
+            </pre>
+        </div>
+    </div>
+    <div>
+        <h2>10. Create annotation on hover</h2>
+        <p>It will make sense if can display annotation for detail when hover the point
+        </p>
+        <div class="border rounded-3 p-2 mb-2">
+            <pre>
+                <code class="language-python">import mplcursors
+cursor = mplcursors.cursor(sc, hover=True)
+@cursor.connect("add")
+def on_add(sel):
+    sel.annotation.set(text="£{:,}".format(prices[sel.index]) + " " + "Miles: {:,}".format(miles[sel.index]) + " " + reg[sel.index])
+                </code>
+            </pre>
+        </div>
+    </div>  
+    <div>
+        <h2>11. Output and insight</h2>
+        <p>Scatter chart plotted below and the most great price car suppose to be lower price with lower mileage and with recent year. Therefore, the point close to the origin will be a better choice. The highlighted point is the car that will be a good choice (13K pounds, 13K miles with year 2014).</p>
+        <img src="Figure 1.png">
+        <p>If year is the concern, then can consider with another choice with better year at 2018 with the point below</p>
+        <img src="Figure 2.png">
+    </div>    
+    <script>hljs.highlightAll();</script>
+    <script>
+        var diagram = flowchart.parse($("div.flow").text());
+        $("div.flow").text("");
+        diagram.drawSVG('diagram', { 'fill': 'grey', 'line-color': 'white', 'line-width': 1, 'font-color': 'white' });
+    </script>
+</body>
+
+</html>
