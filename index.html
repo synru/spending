@@ -1,28 +1,50 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Synru Portfolio</title>
-		<link rel="stylesheet" href="css/styles.css">
-	</head>
-	<body>
-		<nav>
-    		<ul>
-        		<li><a href="/">Home</a></li>
-	        	<li><a href="/spending/">Household Spending</a></li>
-				<li><a href="/autotrader/">Autotrader</a></li>
-    		</ul>
-		</nav>
-		<div class="container">
-    		<div class="blurb">
-        		<h1>Hi, I am Synru!</h1>
-				<p>This is my first page for my personal website!</a></p>
-    		</div>
-		</div>
-		<footer>
-    		<ul>
-        		<li><a href="mailto:sunlung@gmail.com">sunlung@gmail.com</a></li>
-			</ul>
-		</footer>
-	</body>
-</html>
 
+<head>
+	<title>Synru Portfolio</title>
+	<link href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css" rel="stylesheet" />
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body data-color-mode="dark" data-dark-theme="dark" class="p-3">
+	<nav>
+		<ul>
+			<li><a href="/">Home</a></li>
+		</ul>
+	</nav>
+	<div>
+		<div>
+			<h1>Hello I am Synru</h1>
+			<p>Please find some of my works here</p>
+			<div class="col-6 color-bg-accent rounded anim-hover-grow mb-2">
+				<a class="d-block color-shadow-medium px-3 pt-4 pb-6 position-relative rounded-1 overflow-hidden no-underline"
+					href="/spending/">
+					<div class="position-absolute top-0 left-0 py-1 width-full"></div>
+					<h3 class="color-fg-default">Household Spending</h3>
+					<p class="color-fg-muted">
+						Showing my household spending in dashboard
+					</p>
+				</a>
+			</div>
+			<div class="col-6 color-bg-accent rounded anim-hover-grow mb-2">
+				<a class="d-block color-shadow-medium px-3 pt-4 pb-6 position-relative rounded-1 overflow-hidden no-underline"
+					href="/autotrader/">
+					<div class="position-absolute top-0 left-0 py-1 width-full"></div>
+					<h3 class="color-fg-default">Autotrader</h3>
+					<p class="color-fg-muted">
+						Visualize Autotrader data for easier car hunt
+					</p>
+				</a>
+			</div>
+			</ul>
+		</div>
+	</div>
+	<footer>
+		<ul>
+			<li><a href="mailto:sunlung@gmail.com">sunlung@gmail.com</a></li>
+		</ul>
+	</footer>
+</body>
+
+</html>
