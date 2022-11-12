@@ -1,7 +1,7 @@
 <head>
   <!-- Load plotly.js into the DOM -->
   <script src='https://cdn.plot.ly/plotly-2.14.0.min.js'></script>
-  <!--<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>-->
+  <link href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css" rel="stylesheet" />
   <script src="https://d3js.org/d3.v4.min.js">  </script>
   <script src="https://d3js.org/d3-color.v1.min.js">  </script>
   <script src="https://d3js.org/d3-interpolate.v1.min.js">  </script>
@@ -28,7 +28,7 @@
     .flex-item {
       height: 90%;
       width: 100%;
-      background: white;
+      /*background: white;*/
       flex-grow: 1;
       margin-bottom: 10px;
       margin-right: 10px;
@@ -51,6 +51,7 @@
   <script>
 
     const layout = {
+      
       colorway: [],
       barmode: 'stack',
       autosize: true,
