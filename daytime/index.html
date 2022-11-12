@@ -1,0 +1,155 @@
+<head>
+    <script src='https://cdn.plot.ly/plotly-2.14.0.min.js'></script>
+    <script src='data.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.8.0/suncalc.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#datepicker").datepicker({
+                onSelect: function (dateText) {
+                    plotMap()
+                },
+                showButtonPanel: true
+            }).datepicker('setDate', new Date());
+        });
+        var _gotoToday = jQuery.datepicker._gotoToday;
+        jQuery.datepicker._gotoToday = function (a) {
+            var target = jQuery(a);
+            var inst = this._getInst(target[0]);
+            _gotoToday.call(this, a);
+            jQuery.datepicker._selectDate(a, jQuery.datepicker._formatDate(inst, inst.selectedDay, inst.selectedMonth, inst.selectedYear));
+        };
+    </script>
+</head>
+
+<body>
+
+    <style>
+        .grid {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .flex-item {
+            height: 100%;
+            width: 100%;
+            /*background: white;*/
+            flex-grow: 1;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            z-index: 9;
+        }
+
+        .selection {
+            position: absolute;
+            top: 6%;
+            right: 80%;
+
+            z-index: 8;
+        }
+
+        .headline {
+            margin: auto;
+            z-index: 7;
+            width: 60%;
+        }
+
+        .instruction {
+            position: absolute;
+            left: 30%;
+            z-index: 8;
+            top: 5%;
+        }
+    </style>
+    <h1 class="headline">Which city has the longest Daylength?</h1>
+    <div class="selection">Date: <input type="text" id="datepicker"></div>
+
+    <div class="instruction">
+        <p>This map shows the 200 most populated cities in the world. Please pick a date first. Deeper blue means
+            shorter daylength. Deeper red means longer daylength.</p>
+    </div>
+    <div id="myDiv" class="flex-item"></div>
+    <script>
+        /*
+        function dayTime(lat, lng) {
+            let d = $("#datepicker").datepicker( "getDate" )
+            var times = SunCalc.getTimes(d, lat, lng);
+
+            // format sunrise time from the Date object
+            return (times.sunset - times.sunrise) / 1000 / 3600
+        }
+        */
+        function plotMap() {
+            hoverText = []
+            dayTimes = []
+
+            for (city of cities) {
+                lat = city.Latitude
+                lng = city.Longitude
+                offset = Number(city["GMT Offset"])
+                tzId = city["TimezoneId"]
+                let d = $("#datepicker").datepicker("getDate")
+
+                if (d == null)
+                    d = new Date()
+
+                let times = SunCalc.getTimes(d, lat, lng);
+                let dayTime = (times.sunset - times.sunrise) / 1000 / 3600
+                dayTimes.push(dayTime)
+                let sunrise = times.sunrise.toLocaleTimeString('en-GB', { hour: "numeric", minute: "numeric", timeZone: tzId });
+                let sunset = times.sunset.toLocaleTimeString('en-GB', { hour: "numeric", minute: "numeric", timeZone: tzId });
+
+
+                var currentText = city.City + "/" + city.Country + "<br>Sunrise: " + sunrise + " Sunset: " + sunset + "<br>Day Time: " + dayTime.toFixed(1) + " hours<br>";
+                hoverText.push(currentText);
+            }
+
+            var data = [{
+                type: 'scattergeo',
+                lat: cities.map(item => item['Latitude']),
+                lon: cities.map(item => item['Longitude']),
+                mode: 'markers',
+
+                marker: {
+                    size: 14,
+                    color: dayTimes,
+                    cmin: 7,
+                    cmax: 17,
+                    colorscale: 'RdBu',
+                    colorbar: {
+                        title: 'Day Time',
+                        ticksuffix: 'hours',
+                        showticksuffix: 'last',
+                        len: 1
+                    },
+                },
+                text: hoverText
+            }]
+
+            var layout = {
+                autosize: true,
+                hovermode: 'closest',
+                geo: {
+                    showrivers: true,
+                    showcountries: true,
+                    rivercolor: '#fff',
+                    showlakes: true,
+                    lakecolor: '#fff',
+                    showland: true,
+                    landcolor: '#EAEAAE',
+                    countrycolor: '#d3d3d3',
+                    countrywidth: 1.5,
+                    subunitcolor: '#d3d3d3'
+                },
+            }
+
+            Plotly.newPlot('myDiv', data, layout, {
+                'displayModeBar': false,
+                responsive: true
+            });
+        }
+        plotMap()
+    </script>
+</body>
