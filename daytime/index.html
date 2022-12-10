@@ -5,6 +5,10 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/@webgeodatavore/geojson.terminator@1.0.0/GeoJSON.Terminator.js"></script>
+
     <script>
         $(function () {
             $("#datepicker").datepicker({
@@ -81,7 +85,8 @@
             return (times.sunset - times.sunrise) / 1000 / 3600
         }
         */
-        function plotMap() {
+
+        async function plotMap() {
             hoverText = []
             dayTimes = []
 
@@ -105,9 +110,33 @@
                 var currentText = city.City + "/" + city.Country + "<br>Sunrise: " + sunrise + " Sunset: " + sunset + "<br>Day Time: " + dayTime.toFixed(1) + " hours<br>";
                 hoverText.push(currentText);
             }
+            /*
+                        rows = await d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/2010_alcohol_consumption_by_country.csv')
+                        function unpack(rows, key) {
+                            return rows.map(function (row) { return row[key]; });
+                        }
+            
+            
+                        var overlayData = {
+                            type: 'choropleth',
+                            locationmode: 'country names',
+                            locations: unpack(rows, 'location'),
+                            z: unpack(rows, 'alcohol'),
+                            text: unpack(rows, 'location'),
+                            autocolorscale: true
+                        }
+            */
+            var geoJSON = new GeoJSONTerminator()
+
+            var overlayData = {
+                type: 'choroplethmapbox',
+                geojson: geoJSON
+            }
+
+            //var config1 = { mapboxAccessToken: "pk.eyJ1IjoicGxvdGx5LWRvY3MiLCJhIjoiY2s1MnNtODFwMDE4YjNscG5oYWNydXFxYSJ9.AquTxb6AI-oo7TWt01YQ9Q" };
 
             var data = [{
-                type: 'scattergeo',
+                type: 'scattermapbox',
                 lat: cities.map(item => item['Latitude']),
                 lon: cities.map(item => item['Longitude']),
                 mode: 'markers',
@@ -128,6 +157,8 @@
                 text: hoverText
             }]
 
+            data.push(overlayData)
+
             var layout = {
                 autosize: true,
                 hovermode: 'closest',
@@ -143,6 +174,16 @@
                     countrywidth: 1.5,
                     subunitcolor: '#d3d3d3'
                 },
+                mapbox: {
+                    style: "open-street-map", layers: [
+                        {
+                            sourcetype: 'geojson',
+                            source: geoJSON,
+                            type: 'fill',
+                            color: 'black',
+                            opacity: 0.2
+                        }]
+                }
             }
 
             Plotly.newPlot('myDiv', data, layout, {
