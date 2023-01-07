@@ -159,7 +159,7 @@
 
       let raw = await retrieveData("spending_by_sub_cat")
 
-      _data1 = raw.Spending_Sub_Category_Weekly_Spent
+      _data1 = raw.Sub_Category_Weekly_Spent
       let uCats = [...new Set(_data1.map(item => item['Category']))]
 
       //var catSelectData = []
@@ -201,18 +201,18 @@
 
       raw = await retrieveData("query_weekly_spent")
 
-      _data2 = raw.Spending_Spent_By_Week_Cat
+      _data2 = raw.Spent_By_Week_Cat
       _data2.sort((a, b) => (a.Week_Number > b.Week_Number) ? 1 : ((b.Week_Number > a.Week_Number) ? -1 : 0))
 
       raw = await retrieveData("query_item_spent")
 
-      _data3 = raw.Spending_Spent_By_Item
+      _data3 = raw.Spent_By_Item
       _data3.sort((a, b) => (a.Importance_Index > b.Importance_Index) ? 1 : ((b.Importance_Index > a.Importance_Index) ? -1 : 0))
 
       raw = await retrieveData("query_summary")
 
-      _data4 = raw.Spending_Purchase_aggregate
-      _data5 = raw.Spending_Recurrent_Weekly_Spent_aggregate
+      _data4 = raw.Purchase_aggregate
+      _data5 = raw.Recurrent_Weekly_Spent_aggregate
 
       //**********************************init done
 
