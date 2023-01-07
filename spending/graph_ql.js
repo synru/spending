@@ -29,7 +29,7 @@ async function fetchGraphQL(operationsDoc, operationName, variables) {
 async function retrieveData(op) {
     const operationsDoc = `
             query spending_by_sub_cat {
-                Spending_Sub_Category_Weekly_Spent {
+                Sub_Category_Weekly_Spent {
                     Category
                     Sub_Category
                     Weekly_Spent
@@ -39,7 +39,7 @@ async function retrieveData(op) {
             }
 
             query query_weekly_spent {
-              Spending_Spent_By_Week_Cat {
+              Spent_By_Week_Cat {
                 Category
                 Sub_Category
                 Week_Number
@@ -47,7 +47,7 @@ async function retrieveData(op) {
               }
             }
             query query_item_spent {
-              Spending_Spent_By_Item {
+              Spent_By_Item {
                 Category
                 Sub_Category
                 Item
@@ -56,7 +56,7 @@ async function retrieveData(op) {
               }
             }
             query query_summary {
-              Spending_Purchase_aggregate {
+              Purchase_aggregate {
                 aggregate {
                   sum {
                     Amount
@@ -69,7 +69,7 @@ async function retrieveData(op) {
                   }
                 }
               }
-              Spending_Recurrent_Weekly_Spent_aggregate {
+              Recurrent_Weekly_Spent_aggregate {
                 aggregate {
                   sum {
                     Weekly_Spent
