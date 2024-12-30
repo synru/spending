@@ -242,4 +242,4 @@ const spec = {
     ],
     "config": {}
   };
-      vegaEmbed("#vis", spec, {mode: "vega"}).then(console.log).catch(console.warn);
+      vegaEmbed("#vis1", spec, {mode: "vega"}).then(console.log).catch(console.warn);
