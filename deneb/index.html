@@ -1,16 +1,84 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <script src="https://cdn.jsdelivr.net/npm/vega@5.30.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.20.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.26.0"></script>
+  <style>
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      /* 2 columns, each takes equal space */
+      grid-gap: 1rem;
+      /* Spacing between grid items */
+      margin: 1rem;
+      /* Add padding around the grid */
+    }
+
+
+    /* Each chart gets some defined width/height. */
+    .chart {
+      height: 35vh;
+      /* or use something like 50vh if you like */
+      width: 90vh;
+      border: 1px solid #ccc;
+      margin: 1rem;
+    }
+  </style>
 </head>
+
 <body>
-  <div id="vis1"/>
-  <div id="vis2"/>
-  <div id="vis3"/>
+  <div class="grid-container">
+    <div>
+      <h1>Dependency & Dependent</h1>
+      <div id="vis1" class="chart"></div>
+    </div>
+    <div>
+      <h1>Radar/Lollipop/Stellar</h1>
+      <div id="vis3" class="chart"></div>
+    </div>
+    <div>
+      <h1>Directed Graph</h1>
+      <div id="vis2" class="chart"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var view;
+
+    fetch('https://raw.githubusercontent.com/synru/deneb/refs/heads/main/Dependency%20and%20Dependents%20Graph.json')
+      .then(res => res.json())
+      .then(spec => render(spec, '#vis1'))
+      .catch(err => console.error(err));
+
+    fetch('https://raw.githubusercontent.com/synru/deneb/refs/heads/main/directed_graph_with_arrow.json')
+      .then(res => res.json())
+      .then(spec => render(spec, '#vis2'))
+      .catch(err => console.error(err));
+
+    fetch('https://raw.githubusercontent.com/synru/deneb/refs/heads/main/stellar_chart.json')
+      .then(res => res.json())
+      .then(spec => render(spec, '#vis3'))
+      .catch(err => console.error(err));
+
+
+
+    function render(spec, container) {
+      view = new vega.View(vega.parse(spec), {
+        renderer: 'canvas',  // renderer (canvas or svg)
+        container: container,   // parent DOM container
+        hover: true       // enable hover processing
+      });
+      return view.runAsync();
+    }
+
+
+  </script>
+  <!--<script src="stellar.js"></script>
   <script src="dependency.js"></script>
   <script src="directed.js"></script>
-  <script src="stellar.js"></script>
+-->
 </body>
+
 </html>
