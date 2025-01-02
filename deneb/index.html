@@ -42,6 +42,10 @@
       <h1>Directed Graph</h1>
       <div id="vis2" class="chart"></div>
     </div>
+    <div>
+      <h1>3D Model</h1>
+      <div id="vis4" class="chart"></div>
+    </div>    
   </div>
 
   <script type="text/javascript">
@@ -62,6 +66,10 @@
       .then(spec => render(spec, '#vis3'))
       .catch(err => console.error(err));
 
+    fetch('https://raw.githubusercontent.com/synru/deneb/refs/heads/main/3d-ish.json')
+      .then(res => res.json())
+      .then(spec => render(spec, '#vis4'))
+      .catch(err => console.error(err));
 
 
     function render(spec, container) {
